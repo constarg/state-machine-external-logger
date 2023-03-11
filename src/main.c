@@ -2,18 +2,27 @@
 #include <stdint.h>
 #include "pico/stdlib.h"
 
+#include "pico/sync.h"
+
 #include "state_logger.h"
 
 #define GPIOS_LEN 11 // the number of gpios.
 
 
+static spin_lock_t *test;
+
+
 static inline void log_checker()
 {
     uint8_t checker_state = 0;
+
     // get all bits.
     checker_state |= gpio_get(CHECKER_BIT0) << 0;
     checker_state |= gpio_get(CHECKER_BIT1) << 1;
     checker_state |= gpio_get(CHECKER_BIT2) << 2;
+
+
+    printf("CHECKER_VALUE: %d\n", checker_state);
 
     // TODO - check the checker state and log the state.
 }
@@ -55,7 +64,7 @@ static inline void log_forced_standby()
     // TODO - check the status.
 }
 
-static inline void log_checkpoint_err_after_Bt()
+static inline void log_checkpoint_err_after_bt()
 {
     uint8_t checkpoint_err_after_bt = 0;
     checkpoint_err_after_bt = gpio_get(CHECKPOINT_ERR_AFTER_BT_BIT);
@@ -63,6 +72,7 @@ static inline void log_checkpoint_err_after_Bt()
     // TODO - check the bit.
 }
 
+// Interrupt service routine for the gpios.
 static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) {
     if (IS_CHECKER(gpio)) {
         log_checker();
@@ -75,7 +85,7 @@ static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) {
     } else if (IS_FORCED_STANDBY(gpio)) {
         log_forced_standby();
     } else if (IS_CHECKPOINT_ERR_AFTER_BT(gpio)) {
-        log_checkpoint_err_after_BT();
+        log_checkpoint_err_after_bt();
     }
 }
 
@@ -102,7 +112,11 @@ static void state_logger_init_gpios()
 
 int main(void)
 {
+    sleep_ms(10000);
+    test = spin_lock_init(50);
+
     stdio_init_all();
+    
 
     state_logger_init_gpios();
 

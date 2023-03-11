@@ -55,7 +55,7 @@
     (FORCED_STANDBY_BIT0 == (gpio) || FORCED_STANDBY_BIT1 == (gpio)) 
 
 // is from checkpoint_error_after_boot?
-#define IS_CHECKPOINT_ERR_AFTER_Bt(gpio) \
+#define IS_CHECKPOINT_ERR_AFTER_BT(gpio) \
     (CHECKPOINT_ERR_AFTER_BT_BIT == (gpio))
 
 #endif
