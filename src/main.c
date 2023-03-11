@@ -28,20 +28,21 @@ static inline void log_checker()
     uint8_t checker_state = 0;
     uint32_t intr_state; // The state of the interrupts.
 
-    intr_state = save_and_disable_interrupts(); // save interrupt state.
-    for (int i = 0; i < 2000; i++);
+    for (int i = 0; i < 2000; i++); // TODO - remove this.
     // get all bits.
     checker_state |= gpio_get(CHECKER_BIT0) << 0;
     checker_state |= gpio_get(CHECKER_BIT1) << 1;
     checker_state |= gpio_get(CHECKER_BIT2) << 2;
 
+    intr_state = save_and_disable_interrupts(); // save interrupt state.
+
     if (g_checker_prev_state == checker_state) {
         restore_interrupts(intr_state);
         return;
     } else {
-        LOG_SIGNAL("CHECKER", g_checker_states[checker_state]);
         g_checker_prev_state = checker_state;
         restore_interrupts(intr_state);
+        LOG_SIGNAL("CHECKER", g_checker_states[checker_state]);
     }
 }
 
