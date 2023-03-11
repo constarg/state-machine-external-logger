@@ -9,8 +9,19 @@
 
 #define GPIOS_LEN 11 // the number of gpios.
 
+#define LOG_SIGNAL(signal, state) \
+    printf("[LOG] [%s] : [OUTPUT] --> %s\n", signal, state);
 
-static uint8_t checker_prev_state = 0;
+// The privious state of the checker.
+static uint8_t g_checker_prev_state = 0;
+
+// Checker states.
+static char *g_checker_states[8] = {
+    "IDLE", "CHECK STATUS", "CHECKPOINT_FROM_BOTH_CORES",
+    "ROLLBACK", "WAKE_UP_CORES", "WAIT_FOR_STANDBY",
+    "CHECKPOINT_FROM_ONE_CORE", "ROLLFORWARD"
+};
+
 
 static inline void log_checker()
 {
@@ -18,18 +29,18 @@ static inline void log_checker()
     uint32_t intr_state; // The state of the interrupts.
 
     intr_state = save_and_disable_interrupts(); // save interrupt state.
+    for (int i = 0; i < 2000; i++);
     // get all bits.
     checker_state |= gpio_get(CHECKER_BIT0) << 0;
     checker_state |= gpio_get(CHECKER_BIT1) << 1;
     checker_state |= gpio_get(CHECKER_BIT2) << 2;
 
-    if (checker_prev_state == checker_state) {
+    if (g_checker_prev_state == checker_state) {
         restore_interrupts(intr_state);
         return;
     } else {
-        // TODO - log the state here.
-
-        checker_prev_state = checker_state;
+        LOG_SIGNAL("CHECKER", g_checker_states[checker_state]);
+        g_checker_prev_state = checker_state;
         restore_interrupts(intr_state);
     }
 }
@@ -78,8 +89,6 @@ static inline void log_checkpoint_err_after_bt()
 
     // TODO - check the bit.
 }
-
-static int test = 0;
 
 // Interrupt service routine for the gpios.
 static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) {
