@@ -22,6 +22,20 @@ static char *g_checker_states[8] = {
     "CHECKPOINT_FROM_ONE_CORE", "ROLLFORWARD"
 };
 
+// The previous value of core core standbywfe
+static uint8_t g_prev_core_standbywfe;
+
+// The previous value of core parity error.
+static uint8_t g_prev_core_parity_error;
+
+// The previous value of watchdog timer expiration
+static uint8_t g_prev_watchdog_timer_ex;
+
+// The previous value of forced standby
+static uint8_t g_prev_forced_standby;
+
+// The previous value of checkpoint after boot.
+static uint8_t g_prev_checkpoint_err_after_bt;
 
 static inline void log_checker()
 {
@@ -35,7 +49,6 @@ static inline void log_checker()
     checker_state |= gpio_get(CHECKER_BIT2) << 2;
 
     intr_state = save_and_disable_interrupts(); // save interrupt state.
-
     if (g_checker_prev_state == checker_state) {
         restore_interrupts(intr_state);
         return;
@@ -53,6 +66,7 @@ static inline void log_core_standbywfe()
     core_standbywfe_status |= gpio_get(CORE_STANDBYWFE_BIT0) << 0;
     core_standbywfe_status |= gpio_get(CORE_STANDBYWFE_BIT1) << 1;
 
+    printf("1\n");
     // TODO - check the status.
 }
 
@@ -62,7 +76,7 @@ static inline void log_core_parity_err()
     // get all bits
     core_parity_err |= gpio_get(CORE_PARITY_ERR_BIT0) << 0;
     core_parity_err |= gpio_get(CORE_PARITY_ERR_BIT1) << 1;
-
+    printf("2\n");
     // TODO - check the status
 }
 
@@ -71,7 +85,7 @@ static inline void log_watchdog_timer_ex()
     uint8_t watchdog_timer_ex = 0;
     // get all bits.
     watchdog_timer_ex = gpio_get(WATCHDOG_TIMER_EX_BIT);
-
+    printf("3\n");
     // TODO - check the status.
 }
 
@@ -81,6 +95,7 @@ static inline void log_forced_standby()
     forced_standby_status |= gpio_get(FORCED_STANDBY_BIT0) << 0;
     forced_standby_status |= gpio_get(FORCED_STANDBY_BIT1) << 1;
     // TODO - check the status.
+    printf("4\n");
 }
 
 static inline void log_checkpoint_err_after_bt()
@@ -88,6 +103,7 @@ static inline void log_checkpoint_err_after_bt()
     uint8_t checkpoint_err_after_bt = 0;
     checkpoint_err_after_bt = gpio_get(CHECKPOINT_ERR_AFTER_BT_BIT);
 
+    printf("5\n");
     // TODO - check the bit.
 }
 
@@ -131,8 +147,6 @@ static void state_logger_init_gpios()
 int main(void)
 {
     stdio_init_all();
-  
     state_logger_init_gpios();
-
     while (true);
 }
