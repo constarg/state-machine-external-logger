@@ -1,4 +1,5 @@
 import serial
+import sys
 
 # encode checker states.
 def encode_checker_signal(sig_checker):
@@ -26,11 +27,10 @@ def get_log_format(timestamp, signal_id, signal_val):
 def print_encoded_signal(timestamp, signal_id, signal_val):
     print(get_log_format(timestamp, signal_id, signal_val))
 
-def write_log_to_file(timestamp, signal_id, signal_val):
-    log_file = open("state_logger_logs.log", "a")
-    log_file.write(get_log_format(timestamp, signal_id, signal_val))
-    log_file.write("\n")
-    log_file.close()
+def write_log_to_file(timestamp, signal_id, signal_val): 
+    with open("state_logger_logs.log", "a") as log_file:
+        log_file.write(get_log_format(timestamp, signal_id, signal_val))
+        log_file.write("\n")
 
 def log_encoded_signals(timestamp, signals):
     # get the signals and reverse the bit order. Move most significant bit left instead of right.
@@ -59,11 +59,26 @@ def log_encoded_signals(timestamp, signals):
 
 
 
-# open serial port where raspberry pi is.
-with serial.Serial('/dev/ttyACM0') as rasp:
-    while True:
-        line           = rasp.readline()
-        line_split     = str(line.decode("utf-8")).split(" ")
-        curr_timestamp = str(int(line_split[0])/1_000_000)
-        curr_signals   = line_split[1]
-        log_encoded_signals(curr_timestamp, curr_signals)
+device = "/dev/ttyACM0" # default device.
+
+if (len(sys.argv) > 1):
+    if (sys.argv[1] == "--help"):
+        print("Usage:")
+        print("\tpython3 state_encoder.py [device file path]\n")
+        print("\tDefault device file path is /dev/ttyACM0")
+        exit(0)
+    else:
+        device = sys.argv[1]
+try:
+    # open serial port where raspberry pi is.
+    with serial.Serial(device) as rasp:
+        while True:
+            line           = rasp.readline()
+            line_split     = str(line.decode("utf-8")).split(" ")
+            curr_timestamp = str(int(line_split[0])/1_000_000)
+            curr_signals   = line_split[1]
+            log_encoded_signals(curr_timestamp, curr_signals)
+except KeyboardInterrupt:
+    pass
+except:
+    print("Failed to open {dev_file}".format(dev_file = device))
