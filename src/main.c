@@ -28,19 +28,19 @@ static char *g_checker_states[8] = {
 };
 
 // The previous value of core core standbywfe
-static uint8_t g_prev_core_standbywfe;
+static uint8_t g_prev_core_standbywfe = 0;
 
 // The previous value of core parity error.
-static uint8_t g_prev_core_parity_error;
+static uint8_t g_prev_core_parity_error = 0;
 
 // The previous value of watchdog timer expiration
-static uint8_t g_prev_watchdog_timer_ex;
+static uint8_t g_prev_watchdog_timer_ex = 0;
 
 // The previous value of forced standby
-static uint8_t g_prev_forced_standby;
+static uint8_t g_prev_forced_standby = 0;
 
 // The previous value of checkpoint after boot.
-static uint8_t g_prev_checkpoint_err_after_bt;
+static uint8_t g_prev_checkpoint_err_after_bt = 0;
 
 
 static inline void log_checker()
