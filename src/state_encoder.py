@@ -33,6 +33,7 @@ def write_log_to_file(timestamp, signal_id, signal_val):
     log_file.close()
 
 def log_encoded_signals(timestamp, signals):
+    # get the signals and reverse the bit order. Move most significant bit left instead of right.
     checker           = str(signals[0:3])[::-1]  # cheker bits
     core_standbywfe   = str(signals[3:5])[::-1]  # core standbywfe bits.
     core_parity_error = str(signals[5:7])[::-1]  # core core parity error bits.
