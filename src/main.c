@@ -113,8 +113,10 @@ static inline void log_watchdog_timer_ex()
     intr_state = save_and_disable_interrupts();
     // get all bits.
     watchdog_timer_ex = gpio_get(WATCHDOG_TIMER_EX_BIT);
-    
-    LOG_SIGNAL_VALUE("WATCHDOG_TIMER_EXPIRED", watchdog_timer_ex);
+    if (watchdog_timer_ex != g_prev_watchdog_timer_ex) {
+        g_prev_watchdog_timer_ex = watchdog_timer_ex;
+        LOG_SIGNAL_VALUE("WATCHDOG_TIMER_EXPIRED", watchdog_timer_ex);
+    }
     restore_interrupts(intr_state);
 }
 
@@ -142,7 +144,10 @@ static inline void log_checkpoint_err_after_bt()
     uint32_t intr_state = 0;
     checkpoint_err_after_bt = gpio_get(CHECKPOINT_ERR_AFTER_BT_BIT);
     intr_state = save_and_disable_interrupts();
-    LOG_SIGNAL_VALUE("CHECKPOINT_ERROR_AFTER_BOOT", checkpoint_err_after_bt);
+    if (checkpoint_err_after_bt != g_prev_checkpoint_err_after_bt) {
+        g_prev_checkpoint_err_after_bt = checkpoint_err_after_bt;
+        LOG_SIGNAL_VALUE("CHECKPOINT_ERROR_AFTER_BOOT", checkpoint_err_after_bt);
+    }
     restore_interrupts(intr_state);
 }
 
