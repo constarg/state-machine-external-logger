@@ -29,18 +29,23 @@ def get_curr_time_date():
     return "_".join(time.strftime("%H:%M:%S:%d:%m:%y", time.localtime()).split(":"))
 
 def print_encoded_signal(timestamp, signal_id, signal_val):
-    print(get_log_format(timestamp, signal_id, signal_val))
+    print(get_log_format(timestamp, signal_id, signal_val), end = "")
 
 def write_log_to_file(timestamp, signal_id, signal_val, log_file): 
     with open(log_file, "a") as log_file:
         log_file.write(get_log_format(timestamp, signal_id, signal_val))
-        log_file.write("\n")
+        log_file.close()
 
 # write into a file only the errors (if any).
 def write_error_log_to_file(timestamp, signal_id, signal_val, log_error_file):
     with open(log_error_file, "a") as error_file:
         error_file.write(get_log_format(timestamp, signal_id, signal_val))
-        error_file.write("\n")
+        error_file.close()
+
+def write_new_line_to_file(file):
+    with open(file, "a") as logs:
+        logs.write("\n")
+        logs.close()
 
 def log_encoded_signals(timestamp, signals, log_file, log_error_file):
     # get the signals and reverse the bit order. Move most significant bit left instead of right.
@@ -58,6 +63,7 @@ def log_encoded_signals(timestamp, signals, log_file, log_error_file):
     print_encoded_signal(timestamp, "Watchdog timer expiration", watchdog_timer_ex)
     print_encoded_signal(timestamp, "Forced standby", forced_standby)
     print_encoded_signal(timestamp, "Checkpoint error after boot", checkpoint_err_bt)
+    print("\n", end = "")
 
     # save log to a file.
     write_log_to_file(timestamp, "Checker", encode_checker_signal(checker), log_file)
@@ -66,7 +72,8 @@ def log_encoded_signals(timestamp, signals, log_file, log_error_file):
     write_log_to_file(timestamp, "Watchdog timer expiration", watchdog_timer_ex, log_file)
     write_log_to_file(timestamp, "Forced standby", forced_standby, log_file)
     write_log_to_file(timestamp, "Checkpoint error after boot", checkpoint_err_bt, log_file)
-    
+    write_new_line_to_file(log_file)
+
     # any error has occured?
     if (core_parity_error != "00" or checkpoint_err_bt != "0"):
         # save errors to a new log file.
@@ -76,7 +83,7 @@ def log_encoded_signals(timestamp, signals, log_file, log_error_file):
         write_error_log_to_file(timestamp, "Watchdog timer expiration", watchdog_timer_ex, log_error_file)
         write_error_log_to_file(timestamp, "Forced standby", forced_standby, log_error_file)
         write_error_log_to_file(timestamp, "Checkpoint error after boot", checkpoint_err_bt, log_error_file)
-
+        write_new_line_to_file(log_error_file)
 
 
 device = "/dev/ttyACM0" # default device.
