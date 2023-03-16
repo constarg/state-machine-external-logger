@@ -6,4 +6,6 @@ make -j4
 ```
 
 # Python requirements
-`python -m pip install pyserial`
+```
+python -m pip install pyserial
+```
