@@ -30,7 +30,7 @@ static inline void read_signals(signal_buff *dst)
  * 
  * @param src The signal buffer to print.
  */
-static inline void print_signals(const signal_buff src, uint32_t timestamp)
+static inline void print_signals(signal_buff src, uint32_t timestamp)
 {
     printf("%d ", timestamp);
     for (int sig = 0; sig < GPIOS_LEN; sig++) {
@@ -40,22 +40,23 @@ static inline void print_signals(const signal_buff src, uint32_t timestamp)
 }
 
 // Interrupt service routine for the gpios.
-static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) {
+static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) 
+{
     signal_buff signals = 0;
 
     uint8_t intr_state = 0;
-    intr_state = save_and_disable_interrupts();
 
     // read signals.
     read_signals(&signals);
 
+    intr_state = save_and_disable_interrupts();
     if (g_prev_signals == signals) {
         restore_interrupts(intr_state);
         return;
     } else {
-        print_signals(signals, time_us_32());
         g_prev_signals = signals;
         restore_interrupts(intr_state);
+        print_signals(signals, time_us_32());
     }
 }
 
