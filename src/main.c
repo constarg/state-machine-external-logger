@@ -12,8 +12,9 @@
 #define GPIOS_LEN 11 // the number of gpios.
 
 
-static uint32_t signal_buff[200] = {0}; // The queue of signals.
-static volatile int8_t signal_index = -1; // Where to store the next signal.
+static uint32_t signal_queue[255]        = {0}; // The queue of signals.
+static volatile uint8_t queue_curr_last  = -1; // Where to store the next signal.
+static volatile uint8_t queue_curr_first = 0; 
 
 static uint32_t prev_signal = 0;
 
@@ -35,7 +36,7 @@ static inline void print_signals(uint32_t src, uint32_t timestamp)
 static void state_logger_gpio_isr(uint gpio, uint32_t event_mask) 
 {
     uint8_t intr_state = 0;
-    signal_index += 1;
+    queue_curr_last += 1;
 
     intr_state = save_and_disable_interrupts();
     systick_hw->cvr = 0x0;
@@ -45,7 +46,7 @@ static void state_logger_gpio_isr(uint gpio, uint32_t event_mask)
     uint32_t start = systick_hw->cvr; // start
 
     // Get the values of all 11 gpios. Ignore the others using the mask 0x7FF.
-    signal_buff[signal_index] = gpio_get_all();
+    signal_queue[queue_curr_last] = gpio_get_all();
     uint32_t end = systick_hw->cvr;
 
     printf("%u\n", (start - end) * 8);
@@ -79,9 +80,9 @@ int main(void)
     state_logger_init_gpios();
 
     while (true) {
-        if (signal_index > -1) {
-            curr_signal = signal_buff[signal_index];
-            signal_index -= 1;
+        if ((queue_curr_last - queue_curr_last) >= 0) {
+            curr_signal = signal_queue[queue_curr_first];
+            queue_curr_first += 1;
             if (curr_signal == prev_signal) continue;
             prev_signal = curr_signal;
             print_signals(curr_signal, time_us_32());
