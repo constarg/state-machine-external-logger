@@ -8,9 +8,14 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(TO_INCLUDE ./include/)
 set(SOURCE_FILES ./src/main.c)
+set(PIO_FILES  ${CMAKE_CURRENT_LIST_DIR}/src/gpio_handler.pio)
 
 pico_sdk_init()
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+add_executable(${PROJECT_NAME})
+
+pico_generate_pio_header(${PROJECT_NAME} ${PIO_FILES})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 
 include_directories(${TO_INCLUDE})
 
@@ -22,6 +27,7 @@ pico_add_extra_outputs(${PROJECT_NAME})
 # Pull in our pico_stdlib which pulls in commonly used features (gpio, timer-delay etc)
 target_link_libraries(${PROJECT_NAME} 
             pico_stdlib
-            hardware_clocks
+            hardware_pio
 )
 
+pico_add_extra_outputs(${PROJECT_NAME})
