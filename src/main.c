@@ -31,7 +31,8 @@ int main(void)
 
     while (true) {
         // 0x7FF is used to ignore the bits that is not from the first 11 gpios.
-        curr_signals = pio_sm_get_blocking(pio, sm) & 0x7FF; // block until a new value.
+        printf("%d\n", (curr_signals >> 31));
+        curr_signals = pio_sm_get_blocking(pio, sm); // block until a new value.
         print_signals(curr_signals, time_us_32()); 
     }
 }
