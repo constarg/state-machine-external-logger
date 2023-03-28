@@ -9,13 +9,15 @@ init:
 __start:
     in pins, 11             ; Read the 11 gpio pins.
     mov x, ISR              ; Move the data of input shift register to x.
-    in null, 31             ; Clear the data from input shift register.
-    jmp x!=y push_to_rx     ; If the 11 gpios change changed push them to RX queue.
+    jmp x!=y push_to_rx     ; If the 11 gpios changed push them to RX queue.
     jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again --- 4 cyrcles = 5 * 8 = 40 nanoseconds.
 
 push_to_rx:
     mov y, x                ; Move the latest values of gpios to y.
     push                    ; Push the latest values of gpios to the RX queue.
+    in null, 31             ; Clear the data from input shift register.
+    jmp __start
+
 
 ; All the above instructions takes 5 cyrcles, whitch is equal to 5 * 8 = 48 nanoseconds.
 
