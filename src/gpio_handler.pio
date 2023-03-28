@@ -4,7 +4,7 @@
 init:
     mov x, null             ; inititialize x
     mov y, null             ; inititialize y
-    in null, 31             ; inititialize the shift input register.
+    in null, 32             ; inititialize the shift input register.
 
 __start:
     in pins, 11             ; Read the 11 gpio pins.
@@ -15,7 +15,7 @@ __start:
 push_to_rx:
     mov y, x                ; Move the latest values of gpios to y.
     push                    ; Push the latest values of gpios to the RX queue.
-    in null, 31             ; Clear the data from input shift register.
+    in null, 32             ; Clear the data from input shift register.
     jmp __start
 
 
