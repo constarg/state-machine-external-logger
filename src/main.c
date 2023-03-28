@@ -22,7 +22,8 @@ int main(void)
     PIO pio = pio0; // The PIO instance/block to use.
     uint offset = 0; // The offset to the instruction memory of the state machine.
     uint sm = 0; // The state machine to be used from the pio instance.
-    uint32_t curr_signals = 0; // The current values of the GPIOS
+    uint32_t curr_signals = 0; // The current values of the GPIOS.
+    uint32_t prev_signals = 0; // The previous values of the GPIOS.
 
     stdio_init_all();
     offset = pio_add_program(pio, &gpio_handler_program);
@@ -31,8 +32,10 @@ int main(void)
 
     while (true) {
         // 0x7FF is used to ignore the bits that is not from the first 11 gpios.
-        printf("%d\n", (curr_signals >> 31));
-        curr_signals = pio_sm_get_blocking(pio, sm); // block until a new value.
-        print_signals(curr_signals, time_us_32()); 
+        curr_signals = (pio_sm_get_blocking(pio, sm) >> 21); // block until a new value.
+        if (curr_signals != prev_signals) {
+            print_signals(curr_signals, time_us_32()); 
+            prev_signals = curr_signals;
+        }
     }
 }
