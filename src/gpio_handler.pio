@@ -1,5 +1,7 @@
 
-.program gpio_handler ; The name of the program.
+.program gpio_handler       ; The name of the program.
+
+.define GPIO_NUMBER 11
 
 init:
     mov x, null             ; inititialize x
@@ -7,10 +9,10 @@ init:
     in null, 32             ; inititialize the shift input register.
 
 __start:
-    in pins, 11             ; Read the 11 gpio pins.
+    in pins, GPIO_NUMBER    ; Read the GPIO_NUMBER gpio pins.
     mov x, ISR              ; Move the data of input shift register to x.
     jmp x!=y push_to_rx     ; If the 11 gpios changed push them to RX queue.
-    jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again --- 4 cyrcles = 5 * 8 = 40 nanoseconds.
+    jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again --- 4 cyrcles <=> 4 * 8 = 40 nanoseconds.
 
 push_to_rx:
     mov y, x                ; Move the latest values of gpios to y.
@@ -19,13 +21,17 @@ push_to_rx:
     jmp __start
 
 
-; All the above instructions takes 5 cyrcles, whitch is equal to 5 * 8 = 48 nanoseconds.
+; All the above instructions takes 5 cyrcles, whitch is equal to 7 * 8 = 56 nanoseconds.
 
 % c-sdk {
+    #ifndef GPIO_NUMBER
+    #define GPIO_NUMBER 11
+    #endif
+
     void gpio_handler_program_init(PIO pio, uint sm, uint offset, uint pin) 
     {
         pio_gpio_init(pio, pin);
-        pio_sm_set_consecutive_pindirs(pio, sm, pin, 11, false);
+        pio_sm_set_consecutive_pindirs(pio, sm, pin, GPIO_NUMBER, false);
         pio_sm_config conf = gpio_handler_program_get_default_config(offset);
         sm_config_set_set_pins(&conf, pin, 11);
         pio_sm_init(pio, sm, offset, &conf);
