@@ -24,6 +24,7 @@ int main(void)
     uint sm = 0; // The state machine to be used from the pio instance.
     uint32_t curr_signals = 0; // The current values of the GPIOS.
     uint32_t prev_signals = 0; // The previous values of the GPIOS.
+    uint8_t shift_amount = 32 - GPIOS_LEN; // How many bits to shift right.
 
     stdio_init_all();
     offset = pio_add_program(pio, &gpio_handler_program);
@@ -32,7 +33,7 @@ int main(void)
 
     while (true) {
         // 0x7FF is used to ignore the bits that is not from the first 11 gpios.
-        curr_signals = (pio_sm_get_blocking(pio, sm) >> 21); // block until a new value.
+        curr_signals = (pio_sm_get_blocking(pio, sm) >> shift_amount); // block until a new value.
         if (curr_signals != prev_signals) {
             print_signals(curr_signals, time_us_32()); 
             prev_signals = curr_signals;
