@@ -6,7 +6,6 @@ project(state-logger C CXX ASM)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_CXX_STANDARD 17)
 
-set(TO_INCLUDE ./include/)
 set(SOURCE_FILES ./src/main.c)
 set(PIO_FILES  ${CMAKE_CURRENT_LIST_DIR}/src/gpio_handler.pio)
 
@@ -16,8 +15,6 @@ add_executable(${PROJECT_NAME})
 
 pico_generate_pio_header(${PROJECT_NAME} ${PIO_FILES})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
-
-include_directories(${TO_INCLUDE})
 
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_enable_stdio_uart(${PROJECT_NAME} 0)
