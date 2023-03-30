@@ -88,7 +88,7 @@ def log_encoded_signals(timestamp, signals, log_file, log_error_file):
 
 device = "/dev/ttyACM0" # default device.
 log_file = "state_logger_{time_date}.log".format(time_date = get_curr_time_date())
-log_error_file = "state_logger_error_{time_date}".format(time_date = get_curr_time_date())
+log_error_file = "state_logger_error_{time_date}.log".format(time_date = get_curr_time_date())
 
 if (len(sys.argv) > 1):
     if (sys.argv[1] == "--help"):
@@ -108,6 +108,7 @@ try:
             curr_timestamp = str(int(line_split[0])/1_000_000)
             curr_signals   = line_split[1]
             log_encoded_signals(curr_timestamp, curr_signals, log_file, log_error_file)
+        rasp.close()
 except KeyboardInterrupt:
     pass
 except:
