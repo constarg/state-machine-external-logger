@@ -32,7 +32,6 @@ int main(void)
     pio_sm_set_enabled(pio, sm, true);
 
     while (true) {
-        // 0x7FF is used to ignore the bits that is not from the first 11 gpios.
         curr_signals = (pio_sm_get_blocking(pio, sm) >> shift_amount); // block until a new value.
         if (curr_signals != prev_signals) {
             print_signals(curr_signals, time_us_32()); 
