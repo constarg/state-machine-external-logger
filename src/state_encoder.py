@@ -110,6 +110,6 @@ try:
             log_encoded_signals(curr_timestamp, curr_signals, log_file, log_error_file)
         rasp.close()
 except KeyboardInterrupt:
-    pass
+    rasp.close()
 except:
     print("Failed to open {dev_file}".format(dev_file = device))
