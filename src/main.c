@@ -6,15 +6,24 @@
 #include "gpio_handler.pio.h"
 
 
-#define GPIOS_LEN 11 // The number of used GPIOS.
+#define GPIOS_LEN 16 // The number of used GPIOS.
 
-static inline void print_signals(uint32_t src, uint32_t timestamp)
+static inline void print_signals_2(uint32_t src, int len)
 {
-    printf("%d ", timestamp);
-    for (int sig = 0; sig < GPIOS_LEN; sig++) {
+    for (int sig = 0; sig < len; sig++) {
         printf("%d", (src >> sig) & (0x1));
     }
     printf("\n");
+}
+
+static inline void print_signals(uint32_t src)
+{
+    // reposition the signal order to much the specification.
+    uint8_t first_byte = src & 0xFF;
+    uint8_t second_byte = src << 8;
+
+    printf("%c", first_byte);
+    printf("%c", second_byte);
 }
 
 int main(void)
@@ -34,7 +43,7 @@ int main(void)
     while (true) {
         curr_signals = (pio_sm_get_blocking(pio, sm) >> shift_amount); // block until a new value.
         if (curr_signals != prev_signals) {
-            print_signals(curr_signals, time_us_32()); 
+            print_signals(curr_signals); 
             prev_signals = curr_signals;
         }
     }
