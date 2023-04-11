@@ -8,7 +8,7 @@ make -j4
 # Requirements
 To build this program you must follow the instructions of the raspberry pi pico documentation, see https://github.com/raspberrypi/pico-examples and https://github.com/raspberrypi/pico-sdk. <br>
 
-Also don't forget to create the below enviromental variable <br>
+Also don't forget to create the enviromental variable below <br>
 `export PICO_SDK_PATH=/<path_to_pico_sdk_installition>/pico/pico-sdk/`
 
 # About the state machine
