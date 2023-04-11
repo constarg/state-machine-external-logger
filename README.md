@@ -1,5 +1,9 @@
 # Installition
 ```
+sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+```
+
+```
 % git clone https://github.com/EmbeddedCat/state-machine-external-logger.git
 % cd state-machine-external-logger
 % mkdir build
