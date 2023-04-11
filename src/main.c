@@ -8,17 +8,15 @@
 
 #define GPIOS_LEN 16 // The number of used GPIOS.
 
-static inline void print_signals_2(uint32_t src, int len)
+/**
+ * This function sends to the usb serial cable 2 bytes that 
+ * represent the values of each signal of the state machine.
+ *
+ * @param src The signals to send.
+ */
+static inline void send_signals_to_usb(uint32_t src)
 {
-    for (int sig = 0; sig < len; sig++) {
-        printf("%d", (src >> sig) & (0x1));
-    }
-    printf("\n");
-}
-
-static inline void print_signals(uint32_t src)
-{
-    // reposition the signal order to much the specification.
+    // Build the two bytes based on the specification.
     uint8_t first_byte = src & 0xFF;
     uint8_t second_byte = src >> 8;
 
@@ -55,7 +53,7 @@ int main(void)
         rest_signals_chg = (curr_signals & 0xFFE0) != (prev_signals & 0xFFE0);
 
         if (checker_chg || rest_signals_chg) {
-            print_signals(curr_signals); 
+            send_signals_to_usb(curr_signals); 
             prev_signals = curr_signals;
         }
     }
