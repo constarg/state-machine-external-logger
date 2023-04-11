@@ -1,8 +1,11 @@
 # Installition
 ```
-mkdir build
-cd build
-make -j4
+% git clone https://github.com/EmbeddedCat/state-machine-external-logger.git
+% cd state-machine-external-logger
+% mkdir build
+% cd build
+% cmake ../
+% make -j4
 ```
 
 # Requirements
