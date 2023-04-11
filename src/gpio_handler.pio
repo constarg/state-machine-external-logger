@@ -25,16 +25,16 @@ push_to_rx:
 ; All the above instructions takes 5 cyrcles, whitch is equal to 7 * 8 = 56 nanoseconds.
 
 % c-sdk {
-    #ifndef GPIO_NUMBER
-    #define GPIO_NUMBER 16
-    #endif
+#ifndef GPIO_NUMBER
+#define GPIO_NUMBER 16
+#endif
 
-    void gpio_handler_program_init(PIO pio, uint sm, uint offset, uint pin) 
-    {
-        pio_gpio_init(pio, pin);
-        pio_sm_set_consecutive_pindirs(pio, sm, pin, GPIO_NUMBER, false);
-        pio_sm_config conf = gpio_handler_program_get_default_config(offset);
-        sm_config_set_set_pins(&conf, pin, GPIO_NUMBER);
-        pio_sm_init(pio, sm, offset, &conf);
-    }
+void gpio_handler_program_init(PIO pio, uint sm, uint offset, uint pin) 
+{
+    pio_gpio_init(pio, pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, GPIO_NUMBER, false);
+    pio_sm_config conf = gpio_handler_program_get_default_config(offset);
+    sm_config_set_set_pins(&conf, pin, GPIO_NUMBER);
+    pio_sm_init(pio, sm, offset, &conf);
+}
 %}
