@@ -14,7 +14,7 @@
  *
  * @param src The signals to send.
  */
-static inline void send_signals_to_usb(uint32_t src)
+static inline void send_signals_to_usb(const uint32_t src)
 {
     // Build the two bytes based on the specification.
     uint8_t first_byte = src & 0xFF;
