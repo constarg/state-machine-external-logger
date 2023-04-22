@@ -8,6 +8,9 @@
 
 #define GPIOS_LEN 16 // The number of used GPIOS.
 
+#define ROLLBACK_ST      0x3 // Rollback state
+#define WAKE_UP_CORES_ST 0x4 // Wake_up_cores state
+
 /**
  * This function sends to the usb serial cable 2 bytes that 
  * represent the values of each signal of the state machine.
@@ -43,7 +46,8 @@ int main(void)
 
     // increase the system clock to it's maximum potentials.
     set_sys_clock_khz(133000, true);
-    
+   
+    // initialize and start the pio (programmaple io).
     offset = pio_add_program(pio, &gpio_handler_program);
     gpio_handler_program_init(pio, sm, offset, 0);
     pio_sm_set_enabled(pio, sm, true);
@@ -55,12 +59,16 @@ int main(void)
         // The below statement used to determine if any other signal after standbywfe has changed. 
         rest_signals_chg = (curr_signals & 0xFFE0) != (prev_signals & 0xFFE0);
 
+        // Check if the checker state changed or if the rest of the signals changed.
         if (checker_chg || rest_signals_chg) {
-            if ((curr_signals & 0x7) == 0x3) {
+            // Check if the current signal is rollback.
+            // If the current signal is rollback we have to verify that it is in correct order.
+            if ((curr_signals & 0x7) == ROLLBACK_ST) {
                 was_rollback = true;
                 tmp_signals = curr_signals;
             } else if (was_rollback) {
-                if ((curr_signals & 0x7) == 0x4) {
+                // If the next state, after rollback, is not wake_up_cores, then it's not valid
+                if ((curr_signals & 0x7) == WAKE_UP_CORES_ST) {
                     send_signals_to_usb(tmp_signals);
                     send_signals_to_usb(curr_signals);
                 }
