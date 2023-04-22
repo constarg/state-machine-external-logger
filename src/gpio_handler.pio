@@ -13,7 +13,7 @@ __start:
     mov x, ISR              ; Move the data of input shift register to x.
     jmp x!=y push_to_rx     ; If the 11 gpios changed push them to RX queue.
     in null, 32             ; Clear the data from input shift register.
-    jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again --- 4 cyrcles <= 4 * 8 = 40 nanoseconds.
+    jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again.
 
 push_to_rx:
     mov y, x                ; Move the latest values of gpios to y.
@@ -21,8 +21,6 @@ push_to_rx:
     in null, 32             ; Clear the data from input shift register.
     jmp __start
 
-
-; All the above instructions takes 5 cyrcles, whitch is equal to 7 * 8 = 56 nanoseconds.
 
 % c-sdk {
 #ifndef GPIO_NUMBER

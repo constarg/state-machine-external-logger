@@ -20,8 +20,8 @@ static inline void send_signals_to_usb(const uint32_t src)
     uint8_t first_byte = src & 0xFF;
     uint8_t second_byte = src >> 8;
 
-    printf("%c", first_byte);
-    printf("%c", second_byte);
+    putchar(first_byte);
+    putchar(second_byte);
 }
 
 int main(void)
@@ -35,6 +35,9 @@ int main(void)
 
     bool checker_chg = 0; // Determines if the checker has changed.
     bool rest_signals_chg = 0; // Determines if any other signal after the first 5 bits has changed.
+    
+    bool was_rollback = 0; // Determine if the previous signal was rollback.
+    uint32_t tmp_signals = 0; // In this variable is stored a signal that is rollback. We don't transmit the signal until we verify that rollback is correct.
 
     stdio_init_all();
 
@@ -53,7 +56,19 @@ int main(void)
         rest_signals_chg = (curr_signals & 0xFFE0) != (prev_signals & 0xFFE0);
 
         if (checker_chg || rest_signals_chg) {
-            send_signals_to_usb(curr_signals); 
+            if ((curr_signals & 0x7) == 0x3) {
+                was_rollback = true;
+                tmp_signals = curr_signals;
+            } else if (was_rollback) {
+                if ((curr_signals & 0x7) == 0x4) {
+                    send_signals_to_usb(tmp_signals);
+                    send_signals_to_usb(curr_signals);
+                }
+                was_rollback = false;
+                send_signals_to_usb(curr_signals);
+            } else {
+                send_signals_to_usb(curr_signals);
+            }
             prev_signals = curr_signals;
         }
     }
