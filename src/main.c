@@ -4,12 +4,10 @@
 #include "hardware/pio.h"
 // GPIO handler assembly.
 #include "gpio_handler.pio.h"
+#include "checker_validator.pio.h"
 
 
 #define GPIOS_LEN 16 // The number of used GPIOS.
-
-#define ROLLBACK_ST      0x3 // Rollback state
-#define WAKE_UP_CORES_ST 0x4 // Wake_up_cores state
 
 /**
  * This function sends to the usb serial cable 2 bytes that 
@@ -38,9 +36,10 @@ int main(void)
 
     bool checker_chg = 0; // Determines if the checker has changed.
     bool rest_signals_chg = 0; // Determines if any other signal after the first 5 bits has changed.
-    
-    bool was_rollback = 0; // Determine if the previous signal was rollback.
-    uint32_t tmp_signals = 0; // In this variable is stored a signal that is rollback. We don't transmit the signal until we verify that rollback is correct.
+
+    uint8_t checker_xord = 0; // The value of the checker after the xor oparation.
+    uint8_t curr_checker_val = 0; // current checker value.
+    uint8_t prev_checker_val = 0; // previous checker value.
 
     stdio_init_all();
 
@@ -54,29 +53,29 @@ int main(void)
 
     while (true) {
         curr_signals = (pio_sm_get_blocking(pio, sm) >> shift_amount); // block until a new value.
+        curr_checker_val = curr_signals & 0x7; 
+        prev_checker_val = prev_signals & 0x7;
         // The below statement used to determine if the checker has changed.
-        checker_chg = (curr_signals & 0x7) != (prev_signals & 0x7);
+        checker_chg = curr_checker_val != prev_checker_val;
         // The below statement used to determine if any other signal after standbywfe has changed. 
         rest_signals_chg = (curr_signals & 0xFFE0) != (prev_signals & 0xFFE0);
 
         // Check if the checker state changed or if the rest of the signals changed.
-        if (checker_chg || rest_signals_chg) {
-            // Check if the current signal is rollback.
-            // If the current signal is rollback we have to verify that it is in correct order.
-            if ((curr_signals & 0x7) == ROLLBACK_ST) {
-                was_rollback = true;
-                tmp_signals = curr_signals;
-            } else if (was_rollback) {
-                // If the next state, after rollback, is not wake_up_cores, then it's not valid
-                if ((curr_signals & 0x7) == WAKE_UP_CORES_ST) {
-                    send_signals_to_usb(tmp_signals);
-                    send_signals_to_usb(curr_signals);
-                }
-                was_rollback = false;
+        if (checker_chg) {
+            // Find how many bits has changed.
+            checker_xord = curr_checker_val ^ prev_checker_val;
+            // Do not allow those special cases. 
+            if ((checker_xord == 4 && curr_checker_val != 0) ||
+                (checker_xord == 3 && prev_signals == 0) || 
+                (checker_xord == 6 && prev_signals == 0)) {
+                continue;
+            // In general allow a signal
+            } else if (checker_xord == 1 || checker_xord > 2) {
                 send_signals_to_usb(curr_signals);
-            } else {
-                send_signals_to_usb(curr_signals);
+                prev_signals = curr_signals;
             }
+        } else if (rest_signals_chg) {
+            send_signals_to_usb(curr_signals);
             prev_signals = curr_signals;
         }
     }
