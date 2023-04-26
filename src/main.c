@@ -18,7 +18,7 @@
 static inline void send_signals_to_usb(const uint32_t src)
 {
     // Build the two bytes based on the specification.
-    uint8_t first_byte = src & 0xFF;
+    uint8_t first_byte  = src & 0xFF;
     uint8_t second_byte = src >> 8;
 
     putchar(first_byte);
@@ -27,19 +27,20 @@ static inline void send_signals_to_usb(const uint32_t src)
 
 int main(void)
 {
-    PIO pio = pio0; // The PIO instance/block to use.
-    uint offset = 0; // The offset to the instruction memory of the state machine.
-    uint sm = 0; // The state machine to be used from the pio instance.
-    uint32_t curr_signals = 0; // The current values of the GPIOS.
-    uint32_t prev_signals = 0; // The previous values of the GPIOS.
-    uint8_t shift_amount = 32 - GPIOS_LEN; // How many bits to shift right.
-
-    bool checker_chg = 0; // Determines if the checker has changed.
-    bool rest_signals_chg = 0; // Determines if any other signal after the first 5 bits has changed.
-
-    uint8_t checker_xord = 0; // The value of the checker after the xor oparation.
-    uint8_t curr_checker_val = 0; // current checker value.
-    uint8_t prev_checker_val = 0; // previous checker value.
+    // Important variables.
+    PIO pio                  = pio0;            // The PIO instance/block to use.
+    uint offset              = 0;               // The offset to the instruction memory of the state machine.
+    uint sm                  = 0;               // The state machine to be used from the pio instance.
+    uint32_t curr_signals    = 0;               // The current values of the GPIOS.
+    uint32_t prev_signals    = 0;               // The previous values of the GPIOS.
+    uint8_t  shift_amount    = 32 - GPIOS_LEN;  // How many bits to shift right.
+    // Has any new state occured?
+    bool checker_chg         = 0;               // Determines if the checker has changed.
+    bool rest_signals_chg    = 0;               // Determines if any other signal after the first 5 bits has changed.
+    // Error detect on the side of raspberry pi pico. 
+    uint8_t checker_xord     = 0;               // The value of the checker after the xor oparation.
+    uint8_t curr_checker_val = 0;               // current checker value.
+    uint8_t prev_checker_val = 0;               // previous checker value.
 
     stdio_init_all();
 
