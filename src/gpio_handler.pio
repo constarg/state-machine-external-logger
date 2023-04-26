@@ -11,6 +11,7 @@ init:
 __start:
     in pins, GPIO_NUMBER    ; Read the GPIO_NUMBER gpio pins.
     mov x, ISR              ; Move the data of input shift register to x.
+    in pins, GPIO_NUMBER    ; Read the GPIO_NUMBER gpio pins again, i use the second one to fix an error.
     jmp x!=y push_to_rx     ; If the 11 gpios changed push them to RX queue.
     in null, 32             ; Clear the data from input shift register.
     jmp __start             ; If the 11 gpios haven't changed yet, read the gpios again.
