@@ -62,7 +62,6 @@ int main(void)
 
         // Check if the checker state changed or if the rest of the signals changed.
         if (checker_chg) {
-            // Find how many bits has changed.
             checker_xord = curr_checker_val ^ prev_checker_val;
             // Do not allow those special cases. 
             if ((checker_xord == 4 && curr_checker_val != 0) ||
