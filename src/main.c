@@ -56,7 +56,7 @@ int main(void)
         curr_signals_s1 = curr_signals & 0x0000FFFF;
         curr_signals_s2 = curr_signals >> 16;
         // Get the correct value.
-        curr_signals = curr_signals_s1 & curr_signals_s2;
+        curr_signals = curr_signals_s1 & (0xFFF8 | (curr_signals_s2 & 0x7));
         if ((curr_signals & 0x7) == 0) {
             curr_signals = ((curr_signals_s1 & 0x7) > 0)? curr_signals_s1:curr_signals_s2;
         }
@@ -69,12 +69,9 @@ int main(void)
         // The statement down below is used to determine if any other signal has changed. 
         rest_signals_chg = (curr_signals & 0xFFE0) != (prev_signals & 0xFFE0);
         // Check if the checker state changed or if the rest of the signals are changed.
-        if (checker_chg) {
+        if (checker_chg || rest_signals_chg) {
             send_signals_to_usb(curr_signals);
             prev_signals = curr_signals;
-        } else if (rest_signals_chg) {
-            send_signals_to_usb(curr_signals);
-            prev_signals = curr_signals;
-        }
+        } 
     }
 }
