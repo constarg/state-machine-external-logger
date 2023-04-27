@@ -5,8 +5,6 @@
 // GPIO handler assembly.
 #include "gpio_handler.pio.h"
 
-#define GPIOS_LEN 16 // The number of used GPIOS.
-
 /**
  * This function sends to the usb serial cable 2 bytes that 
  * represents the values of each signal of the state machine.
@@ -34,7 +32,6 @@ int main(void)
     uint32_t curr_signals_s1 = 0;               // The current values of the GPIOS, sample 1.
     uint32_t curr_signals_s2 = 0;               // The current values of the GPIOS, sample 2.
     uint32_t prev_signals    = 0;               // The previous values of the GPIOS.
-    uint8_t  shift_amount    = 32 - GPIOS_LEN;  // How many bits to shift right.
     // Has any new state occured?
     bool checker_chg         = 0;               // Determines if the checker has changed.
     bool rest_signals_chg    = 0;               // Determines if any other signal after the first 5 bits has changed.
@@ -56,6 +53,7 @@ int main(void)
         curr_signals_s1 = curr_signals & 0x0000FFFF;
         curr_signals_s2 = curr_signals >> 16;
         // Get the correct value.
+	// and bitwise oparation must be performed only on checker.
         curr_signals = curr_signals_s1 & (0xFFF8 | (curr_signals_s2 & 0x7));
         if ((curr_signals & 0x7) == 0) {
             curr_signals = ((curr_signals_s1 & 0x7) > 0)? curr_signals_s1:curr_signals_s2;
